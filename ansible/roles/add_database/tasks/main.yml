@@ -1,7 +1,7 @@
 
     - block:
         - name: Create database
-          # docker exec rac1 su - oracle -c "/u01/app/oracle/product/12.1.0/dbhome_1/bin/dbca \
+          # docker exec rac1 su - oracle -c "/u01/app/oracle/product/12.2.0/dbhome_1/bin/dbca \
           #   -createDatabase -silent \
           #   -templateName General_Purpose.dbc \
           #   -gdbName orcl \
@@ -25,12 +25,12 @@
                    }} -c "{{
                      oracle_binaries |
                      selectattr('type', 'equalto', 'database') |
-                     selectattr('version', 'equalto', '12.1.0.2') |
+                     selectattr('version', 'equalto', '12.2.0.1') |
                      map(attribute='oracle_home') | first
                    }}/bin/dbca
                    {{
                      databases |
-                     selectattr('version', 'equalto', '12.1.0.2') |
+                     selectattr('version', 'equalto', '12.2.0.1') |
                      map(attribute='parameters') |
                      first | join(' ')
                    }}"

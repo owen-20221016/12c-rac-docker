@@ -150,8 +150,8 @@
 
 
     - name: Create installation file directories
-      # mkdir -p /oracledata/stage/12.1.0
-      # chmod 0777 /oracledata/stage/12.1.0
+      # mkdir -p /oracledata/stage/12.2.0
+      # chmod 0777 /oracledata/stage/12.2.0
       file:
         state: directory
         path: "/oracledata/stage/{{ item.version }}"
@@ -273,31 +273,31 @@
 #############  Prepare Oracle installation files
 ##########################################################################################
 
-    - name: Download installation files only if they are not already present
-      get_url:
-        url: "{{ item.1.name }}"
-        dest: "/oracledata/stage/{{ item.1.name | basename }}"
-      become: True
-      with_subelements:
-        - "{{ installation_files }}"
-        - files
-      tags:
-        - download_installation_files
-        - installation_files
-
-
-    - name: Unzip installation files only if the 'creates' file does not already exist
-      unarchive:
-        src: "/oracledata/stage/{{ item.1.name | basename }}"
-        dest: "/oracledata/stage/{{ item.0.version }}/"
-        creates: "/oracledata/stage/{{ item.0.version }}/{{ item.1.creates }}"
-        remote_src: True
-        owner: "{{ operating_system.grid_infrastructure.users | selectattr('title', 'equalto', 'owner') | map(attribute='uid') | first }}"
-        group: "{{ operating_system.grid_infrastructure.groups | selectattr('title', 'equalto', 'inventory') | map(attribute='gid') | first }}"
-      become: True
-      with_subelements:
-        - "{{ installation_files }}"
-        - files
-      tags:
-        - unzip_installation_files
-        - installation_files
+#    - name: Download installation files only if they are not already present
+#      get_url:
+#        url: "{{ item.1.name }}"
+#        dest: "/oracledata/stage/{{ item.1.name | basename }}"
+#      become: True
+#      with_subelements:
+#        - "{{ installation_files }}"
+#        - files
+#      tags:
+#        - download_installation_files
+#        - installation_files
+#
+#
+#    - name: Unzip installation files only if the 'creates' file does not already exist
+#      unarchive:
+#        src: "/oracledata/stage/{{ item.1.name | basename }}"
+#        dest: "/oracledata/stage/{{ item.0.version }}/"
+#        creates: "/oracledata/stage/{{ item.0.version }}/{{ item.1.creates }}"
+#        remote_src: True
+#        owner: "{{ operating_system.grid_infrastructure.users | selectattr('title', 'equalto', 'owner') | map(attribute='uid') | first }}"
+#        group: "{{ operating_system.grid_infrastructure.groups | selectattr('title', 'equalto', 'inventory') | map(attribute='gid') | first }}"
+#      become: True
+#      with_subelements:
+#        - "{{ installation_files }}"
+#        - files
+#      tags:
+#        - unzip_installation_files
+#        - installation_files

@@ -26,11 +26,11 @@
 
     - block:
         - name: Install grid infrastructure binaries
-          # docker exec rac1 su - grid -c '/stage/12.1.0.2/grid/runInstaller -waitforcompletion \
+          # docker exec rac1 su - grid -c '/stage/12.2.0.1/grid/runInstaller -waitforcompletion \
           #   -ignoreSysPrereqs -silent -force \
           #   "INVENTORY_LOCATION=/u01/app/oraInventory" \
           #   "UNIX_GROUP_NAME=oinstall" \
-          #   "ORACLE_HOME=/u01/app/12.1.0/grid" \
+          #   "ORACLE_HOME=/u01/app/12.2.0/grid" \
           #   "ORACLE_BASE=/u01/app/grid" \
           #   "oracle.install.option=CRS_SWONLY" \
           #   "oracle.install.asm.OSDBA=asmdba" \
@@ -70,7 +70,7 @@
             - >
               {{ oracle_binaries |
                  selectattr('type', 'equalto', 'grid') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
+                 selectattr('version', 'equalto', '12.2.0.1') |
                  map(attribute='oracle_home') | first }}/root.sh
       always:
         - name: Print readable previous command output
@@ -82,12 +82,12 @@
 
     - block:
         - name: Install database binaries
-          # docker exec rac1 su - oracle -c '/stage/12.1.0.2/database/runInstaller -waitforcompletion \
+          # docker exec rac1 su - oracle -c '/stage/12.2.0.1/database/runInstaller -waitforcompletion \
           #   -ignoreSysPrereqs -silent -force \
           #   "oracle.install.option=INSTALL_DB_SWONLY" \
           #   "INVENTORY_LOCATION=/u01/app/oraInventory" \
           #   "UNIX_GROUP_NAME=oinstall" \
-          #   "ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1" \
+          #   "ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1" \
           #   "ORACLE_BASE=/u01/app/oracle" \
           #   "oracle.install.db.InstallEdition=EE" \
           #   "oracle.install.db.DBA_GROUP=dba" \
@@ -119,13 +119,13 @@
 
 
         - name: Run database installer root scripts
-          # docker exec rac1 /u01/app/oracle/product/12.1.0/dbhome_1/root.sh
+          # docker exec rac1 /u01/app/oracle/product/12.2.0/dbhome_1/root.sh
           command: "/usr/bin/docker exec {{ first_rac_node }} {{ item }}"
           with_items:
             - >
               {{ oracle_binaries |
                  selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
+                 selectattr('version', 'equalto', '12.2.0.1') |
                  map(attribute='oracle_home') | first }}/root.sh
       always:
         - name: Print readable previous command output
@@ -134,204 +134,204 @@
       tags:
         - install_database
 
-
-##########################################################################################
-#############  Update OPatch
-##########################################################################################
-
-    - name: Update OPatch for grid infrastructure
-      # docker exec rac1 su - grid -c "cp -a /stage/12.1.0.2/OPatch/* /u01/app/12.1.0/grid/OPatch/"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.grid_infrastructure.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "cp -a /stage/{{
-                 installation_files |
-                 selectattr('type', 'equalto', 'opatch') |
-                 map(attribute='version') | first
-               }}/OPatch/*
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'grid') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/OPatch/"
-      tags:
-        - update_opatch_for_grid
-        - opatch
-
-
-    - name: Update OPatch for database
-      # docker exec rac1 su - oracle -c "cp -a /stage/12.1.0.2/OPatch/* /u01/app/oracle/product/12.1.0/dbhome_1/OPatch/"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.database.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "cp -a /stage/{{
-                 installation_files |
-                 selectattr('type', 'equalto', 'opatch') |
-                 map(attribute='version') | first
-               }}/OPatch/*
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/OPatch/"
-      tags:
-        - update_opatch_for_database
-        - opatch
-
-
-##########################################################################################
-#############  Apply bundle patch
-##########################################################################################
-
-    - name: Apply bundle patch to grid infrastructure
-      # docker exec rac1 su - grid -c "/u01/app/12.1.0/grid/OPatch/opatch apply \
-      #   /stage/12.1.0.2/23615334/21436941 -oh /u01/app/12.1.0/grid -silent"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.grid_infrastructure.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'grid') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/OPatch/opatch apply /stage/{{
-                 installation_files |
-                 selectattr('type', 'equalto', 'bundle') |
-                 map(attribute='version') | first
-               }}/{{ item }} -oh
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'grid') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }} -silent"
-      with_items:
-        - "{{ installation_files | selectattr('type', 'equalto', 'bundle') | map(attribute='patch_numbers') | first }}"
-      tags:
-        - apply_bundle_patch_to_grid
-        - apply_patch
-
-
-    - name: Cleanup .opatch_storage in grid infrastructure home
-      # docker exec rac1 su - grid -c "find /u01/app/12.1.0/grid/.patch_storage -mindepth 1 -type d -exec rm -rf {} +"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.grid_infrastructure.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "find
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'grid') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/.patch_storage/ -mindepth 1 -type d -exec rm -rf {} +"
-      tags:
-        - cleanup_opatch_storage_for_grid
-        - apply_patch
-
-
-    - name: Apply bundle patch to database
-      # docker exec rac1 su - oracle -c "/u01/app/oracle/product/12.1.0/dbhome_1/OPatch/opatch apply \
-      #   /stage/12.1.0.2/23615334/21436941 -oh /u01/app/oracle/product/12.1.0/dbhome_1 -silent"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.database.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/OPatch/opatch apply /stage/{{
-                 installation_files |
-                 selectattr('type', 'equalto', 'bundle') |
-                 map(attribute='version') | first
-               }}/{{ item }} -oh
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }} -silent"
-      with_items:
-        - "{{ installation_files | selectattr('type', 'equalto', 'bundle') | map(attribute='patch_numbers') | first }}"
-      tags:
-        - apply_bundle_patch_to_database
-        - apply_patch
-
-
-##########################################################################################
-#############  Apply one-off patches
-##########################################################################################
-
-    - name: Apply one-off patches to database
-      # docker exec rac1 su - oracle -c "/u01/app/oracle/product/12.1.0/dbhome_1/OPatch/opatch apply \
-      #   /stage/12.1.0.2/19404068 -oh /u01/app/oracle/product/12.1.0/dbhome_1 -silent"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.database.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/OPatch/opatch apply /stage/{{
-                 installation_files |
-                 selectattr('type', 'equalto', 'oneoff') |
-                 map(attribute='version') | first
-               }}/{{ item }} -oh
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }} -silent"
-      with_items:
-        - "{{ installation_files | selectattr('type', 'equalto', 'oneoff') | map(attribute='patch_numbers') | first }}"
-      tags:
-        - apply_oneoff_patches_to_database
-        - apply_patch
-
-
-    - name: Cleanup .opatch_storage in database home
-      # docker exec rac1 su - grid -c "find /u01/app/oracle/product/12.1.0/dbhome_1/.patch_storage -mindepth 1 -type d -exec rm -rf {} +"
-      command: >
-               /usr/bin/docker exec {{ first_rac_node }} su -
-               {{
-                 operating_system.database.users |
-                 selectattr('title', 'equalto', 'owner') |
-                 map(attribute='name') | first
-               }} -c "find
-               {{
-                 oracle_binaries |
-                 selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
-                 map(attribute='oracle_home') | first
-               }}/.patch_storage/ -mindepth 1 -type d -exec rm -rf {} +"
-      tags:
-        - cleanup_opatch_storage_for_database
-        - apply_patch
+#
+###########################################################################################
+##############  Update OPatch
+###########################################################################################
+#
+#    - name: Update OPatch for grid infrastructure
+#      # docker exec rac1 su - grid -c "cp -a /stage/12.2.0.1/OPatch/* /u01/app/12.2.0/grid/OPatch/"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.grid_infrastructure.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "cp -a /stage/{{
+#                 installation_files |
+#                 selectattr('type', 'equalto', 'opatch') |
+#                 map(attribute='version') | first
+#               }}/OPatch/*
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'grid') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/OPatch/"
+#      tags:
+#        - update_opatch_for_grid
+#        - opatch
+#
+#
+#    - name: Update OPatch for database
+#      # docker exec rac1 su - oracle -c "cp -a /stage/12.2.0.1/OPatch/* /u01/app/oracle/product/12.2.0/dbhome_1/OPatch/"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.database.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "cp -a /stage/{{
+#                 installation_files |
+#                 selectattr('type', 'equalto', 'opatch') |
+#                 map(attribute='version') | first
+#               }}/OPatch/*
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'database') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/OPatch/"
+#      tags:
+#        - update_opatch_for_database
+#        - opatch
+#
+#
+###########################################################################################
+##############  Apply bundle patch
+###########################################################################################
+#
+#    - name: Apply bundle patch to grid infrastructure
+#      # docker exec rac1 su - grid -c "/u01/app/12.2.0/grid/OPatch/opatch apply \
+#      #   /stage/12.2.0.1/23615334/21436941 -oh /u01/app/12.2.0/grid -silent"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.grid_infrastructure.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'grid') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/OPatch/opatch apply /stage/{{
+#                 installation_files |
+#                 selectattr('type', 'equalto', 'bundle') |
+#                 map(attribute='version') | first
+#               }}/{{ item }} -oh
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'grid') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }} -silent"
+#      with_items:
+#        - "{{ installation_files | selectattr('type', 'equalto', 'bundle') | map(attribute='patch_numbers') | first }}"
+#      tags:
+#        - apply_bundle_patch_to_grid
+#        - apply_patch
+#
+#
+#    - name: Cleanup .opatch_storage in grid infrastructure home
+#      # docker exec rac1 su - grid -c "find /u01/app/12.2.0/grid/.patch_storage -mindepth 1 -type d -exec rm -rf {} +"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.grid_infrastructure.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "find
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'grid') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/.patch_storage/ -mindepth 1 -type d -exec rm -rf {} +"
+#      tags:
+#        - cleanup_opatch_storage_for_grid
+#        - apply_patch
+#
+#
+#    - name: Apply bundle patch to database
+#      # docker exec rac1 su - oracle -c "/u01/app/oracle/product/12.2.0/dbhome_1/OPatch/opatch apply \
+#      #   /stage/12.2.0.1/23615334/21436941 -oh /u01/app/oracle/product/12.2.0/dbhome_1 -silent"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.database.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'database') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/OPatch/opatch apply /stage/{{
+#                 installation_files |
+#                 selectattr('type', 'equalto', 'bundle') |
+#                 map(attribute='version') | first
+#               }}/{{ item }} -oh
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'database') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }} -silent"
+#      with_items:
+#        - "{{ installation_files | selectattr('type', 'equalto', 'bundle') | map(attribute='patch_numbers') | first }}"
+#      tags:
+#        - apply_bundle_patch_to_database
+#        - apply_patch
+#
+#
+###########################################################################################
+##############  Apply one-off patches
+###########################################################################################
+#
+#    - name: Apply one-off patches to database
+#      # docker exec rac1 su - oracle -c "/u01/app/oracle/product/12.2.0/dbhome_1/OPatch/opatch apply \
+#      #   /stage/12.2.0.1/19404068 -oh /u01/app/oracle/product/12.2.0/dbhome_1 -silent"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.database.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'database') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/OPatch/opatch apply /stage/{{
+#                 installation_files |
+#                 selectattr('type', 'equalto', 'oneoff') |
+#                 map(attribute='version') | first
+#               }}/{{ item }} -oh
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'database') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }} -silent"
+#      with_items:
+#        - "{{ installation_files | selectattr('type', 'equalto', 'oneoff') | map(attribute='patch_numbers') | first }}"
+#      tags:
+#        - apply_oneoff_patches_to_database
+#        - apply_patch
+#
+#
+#    - name: Cleanup .opatch_storage in database home
+#      # docker exec rac1 su - grid -c "find /u01/app/oracle/product/12.2.0/dbhome_1/.patch_storage -mindepth 1 -type d -exec rm -rf {} +"
+#      command: >
+#               /usr/bin/docker exec {{ first_rac_node }} su -
+#               {{
+#                 operating_system.database.users |
+#                 selectattr('title', 'equalto', 'owner') |
+#                 map(attribute='name') | first
+#               }} -c "find
+#               {{
+#                 oracle_binaries |
+#                 selectattr('type', 'equalto', 'database') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_home') | first
+#               }}/.patch_storage/ -mindepth 1 -type d -exec rm -rf {} +"
+#      tags:
+#        - cleanup_opatch_storage_for_database
+#        - apply_patch
 
 
 ##########################################################################################

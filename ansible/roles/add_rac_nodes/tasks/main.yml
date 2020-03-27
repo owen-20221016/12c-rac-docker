@@ -23,7 +23,7 @@
 
     - block:
         - name: Add new rac node container into cluster
-          # docker exec rac1 su - grid -c '/u01/app/12.1.0/grid/addnode/addnode.sh \
+          # docker exec rac1 su - grid -c '/u01/app/12.2.0/grid/addnode/addnode.sh \
           #   "CLUSTER_NEW_NODES={rac2}" "CLUSTER_NEW_VIRTUAL_HOSTNAMES={rac2-vip}" \
           #   -waitforcompletion -silent -ignoreSysPrereqs -force -noCopy'
           command: >
@@ -35,7 +35,7 @@
                    }} -c '{{
                      oracle_binaries |
                      selectattr('type', 'equalto', 'grid') |
-                     selectattr('version', 'equalto', '12.1.0.2') |
+                     selectattr('version', 'equalto', '12.2.0.1') |
                      map(attribute='oracle_home') | first
                    }}/addnode/addnode.sh
                    "CLUSTER_NEW_NODES={% raw %}{{% endraw %}{{ this_rac_node }}{% raw %}}{% endraw %}"
@@ -57,26 +57,26 @@
         - name: Modify the root script to show output
           # when the binaries are installed silently, the root script does not show output by default,
           #   this step modifies the root script to show the output
-          # docker exec rac2 sed -i '/rootmacro.sh/s/$/ -stdout/' /u01/app/12.1.0/grid/root.sh"
+          # docker exec rac2 sed -i '/rootmacro.sh/s/$/ -stdout/' /u01/app/12.2.0/grid/root.sh"
           command: >
                    /usr/bin/docker exec {{ this_rac_node }}
                    sed -i '/rootmacro.sh/s/$/ -stdout/'
                    {{
                      oracle_binaries |
                      selectattr('type', 'equalto', 'grid') |
-                     selectattr('version', 'equalto', '12.1.0.2') |
+                     selectattr('version', 'equalto', '12.2.0.1') |
                      map(attribute='oracle_home') | first
                    }}/root.sh
 
 
         - name: Run grid infrastructure root scripts
-          # docker exec rac2 /u01/app/12.1.0/grid/root.sh
+          # docker exec rac2 /u01/app/12.2.0/grid/root.sh
           command: >
                    /usr/bin/docker exec {{ this_rac_node }}
                    {{
                      oracle_binaries |
                      selectattr('type', 'equalto', 'grid') |
-                     selectattr('version', 'equalto', '12.1.0.2') |
+                     selectattr('version', 'equalto', '12.2.0.1') |
                      map(attribute='oracle_home') | first
                    }}/root.sh
       tags:
@@ -85,7 +85,7 @@
     - name: Relink database binaries for RAC
       # the database binaries are installed when there is only one node so they are not enabled for RAC,
       #   this step relinks the 'oracle' executable for RAC
-      # docker exec rac2 su - oracle -c 'export ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1 && \
+      # docker exec rac2 su - oracle -c 'export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1 && \
       #   make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk rac_on && \
       #   make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk ioracle'
       command: >
@@ -98,7 +98,7 @@
                "export ORACLE_HOME={{
                  oracle_binaries |
                  selectattr('type', 'equalto', 'database') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
+                 selectattr('version', 'equalto', '12.2.0.1') |
                  map(attribute='oracle_home') | first
                }}
                && make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk rac_on

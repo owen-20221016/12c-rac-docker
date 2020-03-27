@@ -6,13 +6,13 @@
 asm_disk_groups:
   - group: DATA
     disks:
-      - rawpath: /dev/sdd
+      - rawpath: /dev/sdb
         udevpath: /dev/asmdisks/asm-clu-121-DATA-disk1
         type: block
-      - rawpath: /dev/sde
+      - rawpath: /dev/sdc
         udevpath: /dev/asmdisks/asm-clu-121-DATA-disk2
         type: block
-      - rawpath: /dev/sdf
+      - rawpath: /dev/sdd
         udevpath: /dev/asmdisks/asm-clu-121-DATA-disk3
         type: block
   - group: NDATA
@@ -80,9 +80,9 @@ oracle_binaries:
     oracle_inventory: /u01/app/oraInventory
 
   - type: grid
-    version: 12.1.0.2
+    version: 12.2.0.1
     oracle_base: /u01/app/grid
-    oracle_home: /u01/app/12.1.0/grid
+    oracle_home: /u01/app/12.2.0/grid
     cluster_name: clu-121
     scan_name: clu-121-scan.clu-121.example.com
     scan_port: 1521
@@ -99,9 +99,9 @@ oracle_binaries:
       asmsnmp: oracle_4U
 
   - type: database
-    version: 12.1.0.2
+    version: 12.2.0.1
     oracle_base: /u01/app/oracle
-    oracle_home: /u01/app/oracle/product/12.1.0/dbhome_1
+    oracle_home: /u01/app/oracle/product/12.2.0/dbhome_1
     database_passwords:
       sys: oracle_4U
       system: oracle_4U
@@ -110,7 +110,7 @@ oracle_binaries:
 # Find 'file_locations' variables in the files.yml in this same directory
 installation_files:
   - type: opatch
-    version: 12.1.0.2
+    version: 12.2.0.1
     files:
       - name: "{{ file_locations.file1 }}"
         creates: OPatch/opatch
@@ -118,7 +118,7 @@ installation_files:
 # Should include all patch subdirectories in bundle patch
 # opatch will automatically skip patches that don't apply to the home that is being patched
   - type: bundle
-    version: 12.1.0.2
+    version: 12.2.0.1
     patch_numbers:
       - 23615334/21436941
       - 23615334/23177536
@@ -131,7 +131,7 @@ installation_files:
         creates: 23615334/23144544/23144544/files/rdbms/lib
 
   - type: oneoff
-    version: 12.1.0.2
+    version: 12.2.0.1
     patch_numbers:
       - 19404068
     files:
@@ -139,12 +139,12 @@ installation_files:
         creates: 19404068/files/rdbms/lib
 
   - type: grid
-    version: 12.1.0.2
+    version: 12.2.0.1
     files:
       - name: "{{ file_locations.file4 }}"
-        creates: grid/stage/Components/oracle.oraolap.dbscripts/12.1.0.2.0
+        creates: grid/stage/Components/oracle.oraolap.dbscripts/12.2.0.1.0
       - name: "{{ file_locations.file5 }}"
-        creates: grid/stage/Components/oracle.has.crs/12.1.0.2.0
+        creates: grid/stage/Components/oracle.has.crs/12.2.0.1.0
     installer_parameters:
       - -waitforcompletion
       - -ignoreSysPrereqs
@@ -159,11 +159,11 @@ installation_files:
            map(attribute='name') | first }}"
       - "ORACLE_HOME={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_home') | first }}"
       - "ORACLE_BASE={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_base') | first }}"
       - "oracle.install.asm.OSDBA={{ operating_system.grid_infrastructure.groups |
            selectattr('title', 'equalto', 'osdba') |
@@ -193,11 +193,11 @@ installation_files:
            map(attribute='name') | first }}"
       - "ORACLE_HOME={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_home') | first }}"
       - "ORACLE_BASE={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_base') | first }}"
       - "oracle.install.asm.OSDBA={{ operating_system.grid_infrastructure.groups |
            selectattr('title', 'equalto', 'osdba') |
@@ -210,27 +210,27 @@ installation_files:
            map(attribute='name') | first }}"
       - "oracle.install.crs.config.gpnp.scanName={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='scan_name') | first }}"
       - "oracle.install.crs.config.gpnp.scanPort={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='scan_port') | first }}"
       - "oracle.install.crs.config.ClusterType={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='cluster_type') | first }}"
       - "oracle.install.crs.config.clusterName={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='cluster_name') | first }}"
       - "oracle.install.crs.config.gpnp.gnsSubDomain={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='gns_sub_domain') | first }}"
       - "oracle.install.crs.config.gpnp.gnsVIPAddress={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='gns_vip') | first }}"
       - "oracle.install.crs.config.clusterNodes={{ first_rac_node }}:AUTO"
       - "oracle.install.crs.config.networkInterfaceList={{
@@ -252,23 +252,23 @@ installation_files:
         }}:2"
       - "oracle.install.crs.config.storageOption={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='cluster_storage') | first }}"
       - "oracle.install.asm.SYSASMPassword={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='asm_passwords.sysasm') | first }}"
       - "oracle.install.asm.monitorPassword={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='asm_passwords.asmsnmp') | first }}"
       - "oracle.install.asm.diskGroup.name={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='cluster_asm_dg_name') | first }}"
       - "oracle.install.asm.diskGroup.redundancy={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='cluster_asm_dg_redundancy') | first }}"
       - "oracle.install.asm.diskGroup.disks=
            {%- set comma = joiner(',') -%}
@@ -276,7 +276,7 @@ installation_files:
                 selectattr('group', 'equalto',
                          oracle_binaries |
                          selectattr('type', 'equalto', 'grid') |
-                         selectattr('version', 'equalto', '12.1.0.2') |
+                         selectattr('version', 'equalto', '12.2.0.1') |
                          map(attribute='cluster_asm_dg_name') | first) |
                 map(attribute='disks') -%}
              {% for path in disk | map(attribute='udevpath') -%}
@@ -285,37 +285,37 @@ installation_files:
            {%- endfor %}"
       - "oracle.install.asm.diskGroup.diskDiscoveryString={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='asm_discovery_string') | first }}"
     tools_configuration_parameters:
       - "oracle.assistants.asm|S_ASMPASSWORD={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='asm_passwords.sysasm') | first }}"
       - "oracle.assistants.asm|S_ASMMONITORPASSWORD={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='asm_passwords.asmsnmp') | first }}"
       - "oracle.crs|oracle_install_crs_ConfigureMgmtDB={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='install_management_database') | first }}"
       - "oracle.crs|oracle_install_crs_MgmtDB_CDB={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='install_management_database') | first }}"
       - "oracle.crs|oracle_install_crs_MgmtDB_Std={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='install_management_database') | first }}"
 
   - type: database
-    version: 12.1.0.2
+    version: 12.2.0.1
     files:
       - name: "{{ file_locations.file6 }}"
-        creates: database/stage/Components/oracle.oraolap.dbscripts/12.1.0.2.0
+        creates: database/stage/Components/oracle.oraolap.dbscripts/12.2.0.1.0
       - name: "{{ file_locations.file7 }}"
-        creates: database/stage/Components/oracle.rdbms/12.1.0.2.0
+        creates: database/stage/Components/oracle.rdbms/12.2.0.1.0
     installer_parameters:
       - -waitforcompletion
       - -ignoreSysPrereqs
@@ -332,11 +332,11 @@ installation_files:
            map(attribute='name') | first }}"
       - "ORACLE_HOME={{ oracle_binaries |
            selectattr('type', 'equalto', 'database') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_home') | first }}"
       - "ORACLE_BASE={{ oracle_binaries |
            selectattr('type', 'equalto', 'database') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_base') | first }}"
       - "oracle.install.db.DBA_GROUP={{ operating_system.database.groups |
            selectattr('title', 'equalto', 'osdba') |
@@ -355,7 +355,7 @@ installation_files:
            map(attribute='name') | first }}"
 
 databases:
-  - version: 12.1.0.2
+  - version: 12.2.0.1
     parameters:
       - -createDatabase
       - -silent
@@ -363,11 +363,11 @@ databases:
       - -gdbName orcl
       - "-sysPassword {{ oracle_binaries |
            selectattr('type', 'equalto', 'database') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='database_passwords.sys') | first }}"
       - "-systemPassword {{ oracle_binaries |
            selectattr('type', 'equalto', 'database') |
-           selectattr('version', 'equalto', '12.1.0.2') |
+           selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='database_passwords.system') | first }}"
       - -storageType ASM
       - -diskGroupName DATA

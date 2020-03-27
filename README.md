@@ -16,7 +16,7 @@ This project has been automated using Ansible. Instructions for using Ansible ca
 
 
 ## Oracle installation files
-Download the Oracle 12c Grid Infrastructure and Database installation files and unzip them in a directory on the host. The directory will be mounted as a volume in the RAC node containers for installation. The host directory used in this example is `/oracledata/stage/12.1.0.2`. Once unzipped, there should be a `grid` and `database` folder in `/oracledata/stage/12.1.0.2`.
+Download the Oracle 12c Grid Infrastructure and Database installation files and unzip them in a directory on the host. The directory will be mounted as a volume in the RAC node containers for installation. The host directory used in this example is `/oracledata/stage/12.2.0.1`. Once unzipped, there should be a `grid` and `database` folder in `/oracledata/stage/12.2.0.1`.
 
 
 ## ASM
@@ -234,11 +234,11 @@ Connect to the RAC node container and execute the grid infrastructure installer.
 During the installation, you will see the message `Some of the optional prerequisites are not met`. This is normal and a consequence of running in a container.
 ```
 docker exec rac1 su - grid -c ' \
-/stage/12.1.0.2/grid/runInstaller -waitforcompletion \
+/stage/12.2.0.1/grid/runInstaller -waitforcompletion \
 -ignoreSysPrereqs -silent -force \
 "INVENTORY_LOCATION=/u01/app/oraInventory" \
 "UNIX_GROUP_NAME=oinstall" \
-"ORACLE_HOME=/u01/app/12.1.0/grid" \
+"ORACLE_HOME=/u01/app/12.2.0/grid" \
 "ORACLE_BASE=/u01/app/grid" \
 "oracle.install.option=CRS_SWONLY" \
 "oracle.install.asm.OSDBA=asmdba" \
@@ -249,7 +249,7 @@ docker exec rac1 su - grid -c ' \
 Run the two root scripts as root in the RAC node container.
 ```
 docker exec rac1 /u01/app/oraInventory/orainstRoot.sh
-docker exec rac1 /u01/app/12.1.0/grid/root.sh
+docker exec rac1 /u01/app/12.2.0/grid/root.sh
 ```
 
 Connect to the RAC node container and execute the database installer. This will install the database software only.
@@ -257,12 +257,12 @@ Connect to the RAC node container and execute the database installer. This will 
 During the installation, you will see the message `Some of the optional prerequisites are not met`. This is normal and a consequence of running in a container.
 ```
 docker exec rac1 su - oracle -c ' \
-/stage/12.1.0.2/database/runInstaller -waitforcompletion \
+/stage/12.2.0.1/database/runInstaller -waitforcompletion \
 -ignoreSysPrereqs -silent -force \
 "oracle.install.option=INSTALL_DB_SWONLY" \
 "INVENTORY_LOCATION=/u01/app/oraInventory" \
 "UNIX_GROUP_NAME=oinstall" \
-"ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1" \
+"ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1" \
 "ORACLE_BASE=/u01/app/oracle" \
 "oracle.install.db.InstallEdition=EE" \
 "oracle.install.db.DBA_GROUP=dba" \
@@ -275,7 +275,7 @@ docker exec rac1 su - oracle -c ' \
 
 Run the root script as root in the RAC node container.
 ```
-docker exec rac1 /u01/app/oracle/product/12.1.0/dbhome_1/root.sh
+docker exec rac1 /u01/app/oracle/product/12.2.0/dbhome_1/root.sh
 ```
 
 Exit the RAC node container and create a new image which will be used as the base of any additional RAC node containers.
@@ -312,12 +312,12 @@ Configure the installed grid infrastructure.
 During the configuration, you will see the message `Some of the optional prerequisites are not met`. This is normal and a consequence of running in a container.
 ```
 docker exec rac1 su - grid -c ' \
-/u01/app/12.1.0/grid/crs/config/config.sh -waitforcompletion \
+/u01/app/12.2.0/grid/crs/config/config.sh -waitforcompletion \
 -ignoreSysPrereqs -silent \
 "INVENTORY_LOCATION=/u01/app/oraInventory" \
 "oracle.install.option=CRS_CONFIG" \
 "ORACLE_BASE=/u01/app/grid" \
-"ORACLE_HOME=/u01/app/12.1.0/grid" \
+"ORACLE_HOME=/u01/app/12.2.0/grid" \
 "oracle.install.asm.OSDBA=asmdba" \
 "oracle.install.asm.OSOPER=asmoper" \
 "oracle.install.asm.OSASM=asmadmin" \
@@ -345,7 +345,7 @@ docker exec rac1 su - grid -c ' \
 
 Run the root script as the root user.
 ```
-docker exec rac1 /u01/app/12.1.0/grid/root.sh
+docker exec rac1 /u01/app/12.2.0/grid/root.sh
 ```
 
 Copy the tools configuration assistant response file from the repository to the custom services directory. Change the passwords in the file if necessary before copying. To save on resources and time, the response file is configured to not install the management database (GIMR). If you want to install the GIMR, remove the last three lines of the response file.
@@ -355,7 +355,7 @@ cp tools_config.rsp /srv/docker/rac_nodes/custom_services/
 
 Run the tools configuration assistant.
 ```
-docker exec rac1 su - grid -c '/u01/app/12.1.0/grid/cfgtoollogs/configToolAllCommands \
+docker exec rac1 su - grid -c '/u01/app/12.2.0/grid/cfgtoollogs/configToolAllCommands \
 RESPONSE_FILE=/usr/lib/custom_services/tools_config.rsp'
 ```
 
@@ -366,7 +366,7 @@ rm -f /srv/docker/rac_nodes/custom_services/tools_config.rsp
 
 Since the cluster was not active when the database binaries were installed, the database installation was not enabled for RAC. This step recompiles the `oracle` executable for RAC.
 ```
-docker exec rac1 su - oracle -c 'export ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1 && \
+docker exec rac1 su - oracle -c 'export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1 && \
 make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk rac_on && \
 make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk ioracle'
 ```
@@ -404,19 +404,19 @@ sudo /srv/docker/scripts/networks-rac2.sh
 
 Configure the grid infrastructure installation to join the existing cluster. Keep in mind that these commands must be executed on a node already part of the cluster (rac1).
 ```
-docker exec rac1 su - grid -c '/u01/app/12.1.0/grid/addnode/addnode.sh \
+docker exec rac1 su - grid -c '/u01/app/12.2.0/grid/addnode/addnode.sh \
 "CLUSTER_NEW_NODES={rac2}" "CLUSTER_NEW_VIRTUAL_HOSTNAMES={rac2-vip}" \
 -waitforcompletion -silent -ignoreSysPrereqs -force -noCopy'
 ```
 
 Run the root script as the root user.
 ```
-docker exec rac2 /u01/app/12.1.0/grid/root.sh
+docker exec rac2 /u01/app/12.2.0/grid/root.sh
 ```
 
 Recompile the `oracle` executable for RAC.
 ```
-docker exec rac2 su - oracle -c 'export ORACLE_HOME=/u01/app/oracle/product/12.1.0/dbhome_1 && \
+docker exec rac2 su - oracle -c 'export ORACLE_HOME=/u01/app/oracle/product/12.2.0/dbhome_1 && \
 make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk rac_on && \
 make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk ioracle'
 ```
@@ -427,7 +427,7 @@ make -f $ORACLE_HOME/rdbms/lib/ins_rdbms.mk ioracle'
 Create a database.
 ```
 docker exec rac1 su - oracle -c ' \
-/u01/app/oracle/product/12.1.0/dbhome_1/bin/dbca -createDatabase -silent \
+/u01/app/oracle/product/12.2.0/dbhome_1/bin/dbca -createDatabase -silent \
 -templateName General_Purpose.dbc \
 -gdbName orcl \
 -sysPassword oracle_4U \
@@ -456,7 +456,7 @@ docker exec rac2 systemctl daemon-reload
 docker exec rac1 systemctl start oraclenfs.mount
 docker exec rac2 systemctl start oraclenfs.mount
 
-docker exec rac1 su - grid -c "ORACLE_SID=+ASM1 /u01/app/12.1.0/grid/bin/asmca \
+docker exec rac1 su - grid -c "ORACLE_SID=+ASM1 /u01/app/12.2.0/grid/bin/asmca \
 -silent -createDiskGroup \
 -diskGroupName NDATA \
 -redundancy EXTERNAL \
@@ -473,7 +473,7 @@ docker exec rac1 su - grid -c "ORACLE_SID=+ASM1 /u01/app/12.1.0/grid/bin/asmca \
 
 Confirm the clusterware resources are running.
 ```
-docker exec rac1 /u01/app/12.1.0/grid/bin/crsctl status resource -t
+docker exec rac1 /u01/app/12.2.0/grid/bin/crsctl status resource -t
 ```
 
 ***

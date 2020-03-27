@@ -1,6 +1,6 @@
 
     - name: Create the disk group
-      # docker exec rac1 su - grid -c "ORACLE_SID=+ASM1 /u01/app/12.1.0/grid/bin/asmca \
+      # docker exec rac1 su - grid -c "ORACLE_SID=+ASM1 /u01/app/12.2.0/grid/bin/asmca \
       #   -silent -createDiskGroup \
       #   -diskGroupName NDATA \
       #   -redundancy EXTERNAL \
@@ -18,7 +18,7 @@
                {{
                  oracle_binaries |
                  selectattr('type', 'equalto', 'grid') |
-                 selectattr('version', 'equalto', '12.1.0.2') |
+                 selectattr('version', 'equalto', '12.2.0.1') |
                  map(attribute='oracle_home') | first
                }}/bin/asmca -silent -createDiskGroup
                -diskGroupName {{ this_disk_group }}
