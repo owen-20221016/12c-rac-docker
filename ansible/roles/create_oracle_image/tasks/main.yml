@@ -26,11 +26,10 @@
 
     - block:
         - name: Install grid infrastructure binaries
-          # docker exec rac1 su - grid -c '/stage/12.2.0.1/grid/runInstaller -waitforcompletion \
-          #   -ignoreSysPrereqs -silent -force \
+          # docker exec rac1 su - grid -c '/stage/12.2.0.1/grid/gridSetup.sh -waitforcompletion \
+          #   -silent -force \
           #   "INVENTORY_LOCATION=/u01/app/oraInventory" \
           #   "UNIX_GROUP_NAME=oinstall" \
-          #   "ORACLE_HOME=/u01/app/12.2.0/grid" \
           #   "ORACLE_BASE=/u01/app/grid" \
           #   "oracle.install.option=CRS_SWONLY" \
           #   "oracle.install.asm.OSDBA=asmdba" \
@@ -46,13 +45,14 @@
                      installation_files |
                      selectattr('type', 'equalto', 'grid') |
                      map(attribute='version') | first
-                   }}/grid/runInstaller
+                   }}/grid/gridSetup.sh
                    {{
                      installation_files |
                      selectattr('type', 'equalto', 'grid') |
                      map(attribute='installer_parameters') |
                      first | join(' ')
                    }}"
+          become: True
           register: install_grid_binaries_result
           changed_when: (install_grid_binaries_result.rc == 0 ) or (install_grid_binaries_result.rc == 6 )
           failed_when: (install_grid_binaries_result.rc != 0) and (install_grid_binaries_result.rc != 6 )
@@ -61,6 +61,8 @@
         - name: Run grid infrastructure root scripts
           # docker exec rac1 /u01/app/oraInventory/orainstRoot.sh
           # docker exec rac1 /u01/app/oraInventory/root.sh
+#          1. /u01/app/12.2.0/orainstRoot.sh
+#          2. /stage/12.2.0.1/grid/root.sh
           command: "/usr/bin/docker exec {{ first_rac_node }} {{ item }}"
           with_items:
             - >
@@ -71,7 +73,7 @@
               {{ oracle_binaries |
                  selectattr('type', 'equalto', 'grid') |
                  selectattr('version', 'equalto', '12.2.0.1') |
-                 map(attribute='oracle_home') | first }}/root.sh
+                 map(attribute='root_sh') | first }}/root.sh
       always:
         - name: Print readable previous command output
           debug:

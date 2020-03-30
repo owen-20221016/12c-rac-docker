@@ -77,12 +77,13 @@ operating_system:
 
 oracle_binaries:
   - type: all
-    oracle_inventory: /u01/app/oraInventory
+    oracle_inventory: /u01/app/12.2.0
 
   - type: grid
     version: 12.2.0.1
     oracle_base: /u01/app/grid
     oracle_home: /u01/app/12.2.0/grid
+    root_sh: /stage/12.2.0.1/grid
     cluster_name: clu-121
     scan_name: clu-121-scan.clu-121.example.com
     scan_port: 1521
@@ -94,6 +95,15 @@ oracle_binaries:
     gns_vip: clu-121-gns.example.com  # Needs to already exist in DNS
     gns_sub_domain: clu-121.example.com  # Needs to already exist in DNS
     install_management_database: False
+#    backdba_group: asmadmin  # oracle.install.db.BACKUPDBA_GROUP=dba
+#    dgdba_group: asmadmin  # oracle.install.db.DGDBA_GROUP=dba
+#    kmdba_group: asmadmin  # oracle.install.db.KMDBA_GROUP=dba
+#    #   "oracle.install.asm.OSDBA=asmdba" \
+#    #   "oracle.install.asm.OSOPER=asmoper" \
+#    #   "oracle.install.asm.OSASM=asmadmin"'
+#    memory_limit: 400  # oracle.install.db.config.starterdb.memoryLimit
+#    # oracle.install.option=INSTALL_DB_SWONLY
+#    install_option: INSTALL_DB_SWONLY
     asm_passwords:
       sysasm: oracle_4U
       asmsnmp: oracle_4U
@@ -105,38 +115,38 @@ oracle_binaries:
     database_passwords:
       sys: oracle_4U
       system: oracle_4U
-  
+
 
 # Find 'file_locations' variables in the files.yml in this same directory
 installation_files:
-  - type: opatch
-    version: 12.2.0.1
-    files:
-      - name: "{{ file_locations.file1 }}"
-        creates: OPatch/opatch
-
-# Should include all patch subdirectories in bundle patch
-# opatch will automatically skip patches that don't apply to the home that is being patched
-  - type: bundle
-    version: 12.2.0.1
-    patch_numbers:
-      - 23615334/21436941
-      - 23615334/23177536
-      - 23615334/23144544
-      - 23615334/23054341
-      - 23615334/23520664
-    files:
-      - name: "{{ file_locations.file2 }}"
-# Unzip each file and pick one of the files or directories it creates
-        creates: 23615334/23144544/23144544/files/rdbms/lib
-
-  - type: oneoff
-    version: 12.2.0.1
-    patch_numbers:
-      - 19404068
-    files:
-      - name:  "{{ file_locations.file3 }}"
-        creates: 19404068/files/rdbms/lib
+  #  - type: opatch
+  #    version: 12.2.0.1
+  #    files:
+  #      - name: "{{ file_locations.file1 }}"
+  #        creates: OPatch/opatch
+  #
+  ## Should include all patch subdirectories in bundle patch
+  ## opatch will automatically skip patches that don't apply to the home that is being patched
+  #  - type: bundle
+  #    version: 12.2.0.1
+  #    patch_numbers:
+  #      - 23615334/21436941
+  #      - 23615334/23177536
+  #      - 23615334/23144544
+  #      - 23615334/23054341
+  #      - 23615334/23520664
+  #    files:
+  #      - name: "{{ file_locations.file2 }}"
+  ## Unzip each file and pick one of the files or directories it creates
+  #        creates: 23615334/23144544/23144544/files/rdbms/lib
+  #
+  #  - type: oneoff
+  #    version: 12.2.0.1
+  #    patch_numbers:
+  #      - 19404068
+  #    files:
+  #      - name:  "{{ file_locations.file3 }}"
+  #        creates: 19404068/files/rdbms/lib
 
   - type: grid
     version: 12.2.0.1
@@ -147,7 +157,7 @@ installation_files:
         creates: grid/stage/Components/oracle.has.crs/12.2.0.1.0
     installer_parameters:
       - -waitforcompletion
-      - -ignoreSysPrereqs
+#      - -ignoreSysPrereqs
       - -silent
       - -force
       - oracle.install.option=CRS_SWONLY
@@ -157,14 +167,38 @@ installation_files:
       - "UNIX_GROUP_NAME={{ operating_system.grid_infrastructure.groups |
            selectattr('title', 'equalto', 'inventory') |
            map(attribute='name') | first }}"
-      - "ORACLE_HOME={{ oracle_binaries |
-           selectattr('type', 'equalto', 'grid') |
-           selectattr('version', 'equalto', '12.2.0.1') |
-           map(attribute='oracle_home') | first }}"
+#      - "ORACLE_HOME={{ oracle_binaries |
+#           selectattr('type', 'equalto', 'grid') |
+#           selectattr('version', 'equalto', '12.2.0.1') |
+#           map(attribute='oracle_home') | first }}"
       - "ORACLE_BASE={{ oracle_binaries |
            selectattr('type', 'equalto', 'grid') |
            selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_base') | first }}"
+#      - "oracle.install.db.config.starterdb.SID={{ oracle_binaries |
+#           selectattr('type', 'equalto', 'grid') |
+#           selectattr('version', 'equalto', '12.2.0.1') |
+#           map(attribute='oracle_sid') | first }}"
+#      - "oracle.install.option={{ oracle_binaries |
+#                 selectattr('type', 'equalto', 'grid') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='install_option') | first }}"
+#      - "oracle.install.db.config.starterdb.globalDBName={{ oracle_binaries |
+#                 selectattr('type', 'equalto', 'grid') |
+#                 selectattr('version', 'equalto', '12.2.0.1') |
+#                 map(attribute='oracle_name') | first }}"
+#      - "oracle.install.db.BACKUPDBA_GROUP={{ oracle_binaries |
+#                       selectattr('type', 'equalto', 'grid') |
+#                       selectattr('version', 'equalto', '12.2.0.1') |
+#                       map(attribute='backdba_group') | first }}"
+#      - "oracle.install.db.DGDBA_GROUP={{ oracle_binaries |
+#                       selectattr('type', 'equalto', 'grid') |
+#                       selectattr('version', 'equalto', '12.2.0.1') |
+#                       map(attribute='dgdba_group') | first }}"
+#      - "oracle.install.db.KMDBA_GROUP={{ oracle_binaries |
+#                       selectattr('type', 'equalto', 'grid') |
+#                       selectattr('version', 'equalto', '12.2.0.1') |
+#                       map(attribute='kmdba_group') | first }}"
       - "oracle.install.asm.OSDBA={{ operating_system.grid_infrastructure.groups |
            selectattr('title', 'equalto', 'osdba') |
            map(attribute='name') | first }}"
@@ -174,6 +208,10 @@ installation_files:
       - "oracle.install.asm.OSASM={{ operating_system.grid_infrastructure.groups |
            selectattr('title', 'equalto', 'osasm') |
            map(attribute='name') | first }}"
+#      - "oracle.install.db.config.starterdb.memoryLimit={{ oracle_binaries |
+#                         selectattr('type', 'equalto', 'grid') |
+#                         selectattr('version', 'equalto', '12.2.0.1') |
+#                         map(attribute='memory_limit') | first }}"
     configuration_parameters:
       - -waitforcompletion
       - -ignoreSysPrereqs
@@ -392,7 +430,7 @@ docker:
       cidr: 24
       network_name: eth-priv
 
-  containers: 
+  containers:
     - name: bind
       hostname: bind
       type: dns
@@ -497,8 +535,8 @@ docker:
 
 
 first_rac_node: >-
-     {{ docker.containers |
-     selectattr('designation', 'defined') |
-     selectattr('type', 'equalto', 'rac_node') |
-     selectattr('designation', 'equalto', 'first') |
-     map(attribute='name') | first }}
+  {{ docker.containers |
+  selectattr('designation', 'defined') |
+  selectattr('type', 'equalto', 'rac_node') |
+  selectattr('designation', 'equalto', 'first') |
+  map(attribute='name') | first }}

@@ -1,9 +1,9 @@
 
 file_locations:
-  file1: www.baidu.com
+  file1: 12.2.0.1/database/OPatch
   file2: www.baidu.com
   file3: www.baidu.com
-  file4: www.baidu.com
-  file5: www.baidu.com
-  file6: www.baidu.com
-  file7: www.baidu.com
+  file4: /oracledata/stage/12.2.0.1/
+  file5: /oracledata/stage/12.2.0.1/
+  file6: /oracledata/stage/12.2.0.1/
+  file7: /oracledata/stage/12.2.0.1/

@@ -121,6 +121,22 @@
         - create_directory
 
 
+    - name: change grid directory owner
+      # chown - R /stage/12.2.0.1/grid
+      file:
+        state: directory
+        path: "/stage/12.2.0.1/grid"
+        owner: grid
+      become: True
+
+      - name: change oracle directory mode
+          # chown - R /stage/12.2.0.1/grid
+          file:
+            state: directory
+            path: "/stage/12.2.0.1"
+            mode: 0777
+          become: True
+
     - name: Create scripts directories
       # mkdir -p /srv/docker/scripts
       # chmod 0777 /srv/docker/scripts
@@ -284,8 +300,7 @@
 #      tags:
 #        - download_installation_files
 #        - installation_files
-#
-#
+
 #    - name: Unzip installation files only if the 'creates' file does not already exist
 #      unarchive:
 #        src: "/oracledata/stage/{{ item.1.name | basename }}"
