@@ -26,15 +26,15 @@
 
     - block:
         - name: Install grid infrastructure binaries
-          # docker exec rac1 su - grid -c '/stage/12.2.0.1/grid/gridSetup.sh -waitforcompletion \
-          #   -silent -force \
-          #   "INVENTORY_LOCATION=/u01/app/oraInventory" \
-          #   "UNIX_GROUP_NAME=oinstall" \
-          #   "ORACLE_BASE=/u01/app/grid" \
-          #   "oracle.install.option=CRS_SWONLY" \
-          #   "oracle.install.asm.OSDBA=asmdba" \
-          #   "oracle.install.asm.OSOPER=asmoper" \
-          #   "oracle.install.asm.OSASM=asmadmin"'
+#           docker exec rac1 su - grid -c '/stage/12.2.0.1/grid/gridSetup.sh -waitforcompletion \
+#             -silent -force \
+#             "INVENTORY_LOCATION=/u01/app/oraInventory" \
+#             "UNIX_GROUP_NAME=oinstall" \
+#             "ORACLE_BASE=/u01/app/grid" \
+#             "oracle.install.option=CRS_SWONLY" \
+#             "oracle.install.asm.OSDBA=asmdba" \
+#             "oracle.install.asm.OSOPER=asmoper" \
+#             "oracle.install.asm.OSASM=asmadmin"'
           command: >
                    /usr/bin/docker exec {{ first_rac_node }} su -
                    {{
@@ -81,8 +81,13 @@
       tags:
         - install_grid
 
-
     - block:
+        - name: change dir mode
+          command: "/usr/bin/docker exec {{ first_rac_node }} {{ item }}"
+          with_items:
+            - "/bin/chmod 777 /u01"
+            - "/bin/chmod 777 /u01/app"
+
         - name: Install database binaries
           # docker exec rac1 su - oracle -c '/stage/12.2.0.1/database/runInstaller -waitforcompletion \
           #   -ignoreSysPrereqs -silent -force \
@@ -97,6 +102,7 @@
           #   "oracle.install.db.BACKUPDBA_GROUP=backupdba" \
           #   "oracle.install.db.DGDBA_GROUP=dgdba" \
           #   "oracle.install.db.KMDBA_GROUP=kmdba" \
+          #   "oracle.install.db.OSRACDBA_GROUP=racdba" \
           #   "DECLINE_SECURITY_UPDATES=true"'
           command: >
                    /usr/bin/docker exec {{ first_rac_node }} su -
@@ -136,6 +142,15 @@
       tags:
         - install_database
 
+##########################################################################################
+#############  Commit rac1 container to an image
+##########################################################################################
+
+    - name: Commit rac1 container to an image
+      # docker commit rac1 giinstalled
+      command: "/usr/bin/docker commit {{ first_rac_node }} giinstalled"
+      tags:
+        - commit_rac1
 #
 ###########################################################################################
 ##############  Update OPatch
@@ -336,12 +351,4 @@
 #        - apply_patch
 
 
-##########################################################################################
-#############  Commit rac1 container to an image
-##########################################################################################
 
-    - name: Commit rac1 container to an image
-      # docker commit rac1 giinstalled
-      command: "/usr/bin/docker commit {{ first_rac_node }} giinstalled"
-      tags:
-        - commit_rac1

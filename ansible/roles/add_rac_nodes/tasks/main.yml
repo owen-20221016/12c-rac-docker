@@ -36,7 +36,7 @@
                      oracle_binaries |
                      selectattr('type', 'equalto', 'grid') |
                      selectattr('version', 'equalto', '12.2.0.1') |
-                     map(attribute='oracle_home') | first
+                     map(attribute='root_sh') | first
                    }}/addnode/addnode.sh
                    "CLUSTER_NEW_NODES={% raw %}{{% endraw %}{{ this_rac_node }}{% raw %}}{% endraw %}"
                    "CLUSTER_NEW_VIRTUAL_HOSTNAMES={% raw %}{{% endraw %}{{ this_rac_node }}-vip{% raw %}}{% endraw %}"

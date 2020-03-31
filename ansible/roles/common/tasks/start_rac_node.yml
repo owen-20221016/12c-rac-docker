@@ -91,11 +91,11 @@
 ##########################################################################################
 
     - name: Create rac node container
-      # docker run --detach --privileged --name rac1 --hostname rac1 \
-      #   --volume /srv/docker/rac_nodes/custom_services:/usr/lib/custom_services \
-      #   --volume /oracledata/stage:/stage --volume /sys/fs/cgroup:/sys/fs/cgroup:ro \
-      #   --shm-size 2048m --dns 10.10.10.10 sethmiller/giready \
-      #   /usr/lib/systemd/systemd --system --unit=multi-user.target
+#       docker run --detach --privileged --name rac1 --hostname rac1 \
+#         --volume /srv/docker/rac_nodes/custom_services:/usr/lib/custom_services \
+#         --volume /oracledata/stage:/stage --volume /sys/fs/cgroup:/sys/fs/cgroup:ro \
+#         --shm-size 2048m --dns 10.10.10.10 sethmiller/giready \
+#         /usr/lib/systemd/systemd --system --unit=multi-user.target
       docker_container:
         name: "{{ item.name }}"
         hostname:  "{{ item.hostname }}"

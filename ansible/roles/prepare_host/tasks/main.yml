@@ -129,13 +129,21 @@
         owner: grid
       become: True
 
-      - name: change oracle directory mode
+    - name: change grid directory owner
+        # chown - R /stage/12.2.0.1/grid
+      file:
+        state: directory
+        path: "/u01/app"
+        owner: root
+      become: True
+
+    - name: change oracle directory mode
           # chown - R /stage/12.2.0.1/grid
-          file:
-            state: directory
-            path: "/stage/12.2.0.1"
-            mode: 0777
-          become: True
+      file:
+        state: directory
+        path: "/u01/app"
+        mode: 0777
+      become: True
 
     - name: Create scripts directories
       # mkdir -p /srv/docker/scripts

@@ -112,6 +112,8 @@ oracle_binaries:
     version: 12.2.0.1
     oracle_base: /u01/app/oracle
     oracle_home: /u01/app/oracle/product/12.2.0/dbhome_1
+    # oracle.install.db.OSRACDBA_GROUP
+    osracdba_group: racdba
     database_passwords:
       sys: oracle_4U
       system: oracle_4U
@@ -376,6 +378,10 @@ installation_files:
            selectattr('type', 'equalto', 'database') |
            selectattr('version', 'equalto', '12.2.0.1') |
            map(attribute='oracle_base') | first }}"
+      - "oracle.install.db.OSRACDBA_GROUP={{ oracle_binaries |
+           selectattr('type', 'equalto', 'database') |
+           selectattr('version', 'equalto', '12.2.0.1') |
+           map(attribute='osracdba_group') | first }}"
       - "oracle.install.db.DBA_GROUP={{ operating_system.database.groups |
            selectattr('title', 'equalto', 'osdba') |
            map(attribute='name') | first }}"
@@ -391,7 +397,6 @@ installation_files:
       - "oracle.install.db.KMDBA_GROUP={{ operating_system.database.groups |
            selectattr('title', 'equalto', 'oskmdba') |
            map(attribute='name') | first }}"
-
 databases:
   - version: 12.2.0.1
     parameters:
